@@ -1,6 +1,19 @@
 <script setup>
+import {onMounted, ref} from "vue";
 import WeatherSummary from "@/components/WeatherSummary.vue";
 import Highlights from "@/components/Highlights.vue";
+import {API_KEY, BASE_URL} from "@/const";
+
+const city = ref('Paris');
+const weatherInfo = ref(null);
+
+function getWeather() {
+  fetch(`${BASE_URL}?q=${city.value}&units=metric&appid=${API_KEY}`)
+      .then((res) => res.json())
+      .then((data) => weatherInfo.value = data);
+}
+
+onMounted(getWeather);
 </script>
 
 <template>
@@ -13,13 +26,18 @@ import Highlights from "@/components/Highlights.vue";
             <section class="section section-left">
               <div class="info">
                 <div class="city-inner">
-                  <input type="text" class="search">
+                  <input
+                      type="text"
+                      class="search"
+                      v-model="city"
+                      @keyup.enter="getWeather"
+                  >
                 </div>
-                <WeatherSummary></WeatherSummary>
+                <WeatherSummary :weatherInfo="weatherInfo" />
               </div>
             </section>
             <section class="section section-right">
-              <Highlights></Highlights>
+              <Highlights/>
             </section>
           </div>
           <div class="sections">
@@ -32,7 +50,7 @@ import Highlights from "@/components/Highlights.vue";
                   <div class="block-bottom-texts">
                     <div class="block-bottom-text-block">
                       <div class="block-bottom-text-block-title">
-                        Longitude: 2.3488
+                        Longitude: {{ weatherInfo?.coord?.lon }}
                       </div>
                       <div class="block-bottom-text-block-desc">
                         Longitude measures distance east or west of the prime meridian.
@@ -40,7 +58,7 @@ import Highlights from "@/components/Highlights.vue";
                     </div>
                     <div class="block-bottom-text-block">
                       <div class="block-bottom-text-block-title">
-                        Latitude: 48.8534
+                        Latitude: {{ weatherInfo?.coord?.lat }}
                       </div>
                       <div class="block-bottom-text-block-desc">
                         Latitude lines start at the equator (0 degrees latitude) and run east and west, parallel to the equator.
@@ -59,7 +77,7 @@ import Highlights from "@/components/Highlights.vue";
                   <div class="block-bottom-texts">
                     <div class="block-bottom-text-block">
                       <div class="block-bottom-text-block-title">
-                        Humidity: 60 %
+                        Humidity: {{ weatherInfo?.main?.humidity }} %
                       </div>
                       <div class="block-bottom-text-block-desc">
                         Humidity is the concentration of water vapor present in the air. Water vapor, the gaseous state of water, is generally invisible to the human eye.
